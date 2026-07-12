@@ -1,7 +1,19 @@
 import { Platform } from 'react-native';
+import Constants from 'expo-constants';
 
-// Use 10.0.2.2 for Android emulator, localhost for iOS simulator/web
-const LOCAL_IP = Platform.OS === 'android' ? '10.0.2.2' : 'localhost';
+// For physical devices, get the host IP of the development machine running Expo CLI/Metro.
+// Fall back to 10.0.2.2 for Android emulator or localhost for iOS simulator.
+const getLocalIp = () => {
+  if (__DEV__) {
+    const hostUri = Constants.expoConfig?.hostUri;
+    if (hostUri) {
+      const ip = hostUri.split(':').shift();
+      if (ip) return ip;
+    }
+  }
+  return Platform.OS === 'android' ? '10.0.2.2' : 'localhost';
+};
 
-// Replace with your actual local IP if testing on a physical device, e.g. 192.168.1.X
+const LOCAL_IP = getLocalIp();
+
 export const API_URL = `http://${LOCAL_IP}:3000/api`;
