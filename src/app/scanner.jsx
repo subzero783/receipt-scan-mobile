@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, ActivityIndicator, Alert } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
-import * as SecureStore from 'expo-secure-store';
+import { getItem } from '../utils/storage';
 import { API_URL } from '../constants/api';
 
 export default function ScannerScreen() {
@@ -50,7 +50,7 @@ export default function ScannerScreen() {
 
     setIsUploading(true);
     try {
-      const token = await SecureStore.getItemAsync('userToken');
+      const token = await getItem('userToken');
       if (!token) {
         Alert.alert('Error', 'Not authenticated');
         router.replace('/');

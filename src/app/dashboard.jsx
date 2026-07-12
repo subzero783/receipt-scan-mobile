@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity, ActivityIndicator, Alert, RefreshControl } from 'react-native';
 import { router } from 'expo-router';
-import * as SecureStore from 'expo-secure-store';
+import { getItem, removeItem } from '../utils/storage';
 import axios from 'axios';
 import { API_URL } from '../constants/api';
 
@@ -16,7 +16,7 @@ export default function DashboardScreen() {
 
   const fetchReceipts = async () => {
     try {
-      const token = await SecureStore.getItemAsync('userToken');
+      const token = await getItem('userToken');
       if (!token) {
         router.replace('/');
         return;
@@ -40,7 +40,7 @@ export default function DashboardScreen() {
   };
 
   const handleLogout = async () => {
-    await SecureStore.deleteItemAsync('userToken');
+    await removeItem('userToken');
     router.replace('/');
   };
 

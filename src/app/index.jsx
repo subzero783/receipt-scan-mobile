@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, Alert } from 'react-native';
 import { router } from 'expo-router';
-import * as SecureStore from 'expo-secure-store';
+import { getItem, setItem } from '../utils/storage';
 import axios from 'axios';
 import { API_URL } from '../constants/api';
 
@@ -17,7 +17,7 @@ export default function LoginScreen() {
 
   const checkToken = async () => {
     try {
-      const token = await SecureStore.getItemAsync('userToken');
+      const token = await getItem('userToken');
       if (token) {
         // Assume valid for MVP. Real app should verify with backend.
         router.replace('/dashboard');
@@ -39,7 +39,7 @@ export default function LoginScreen() {
     try {
       const res = await axios.post(`${API_URL}/auth/mobile-login`, { email, password });
       if (res.data.token) {
-        await SecureStore.setItemAsync('userToken', res.data.token);
+        await setItem('userToken', res.data.token);
         router.replace('/dashboard');
       }
     } catch (error) {
