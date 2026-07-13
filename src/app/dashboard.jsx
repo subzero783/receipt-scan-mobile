@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, StyleSheet, TouchableOpacity, ActivityIndicator, Alert, RefreshControl } from 'react-native';
-import { router } from 'expo-router';
-import { getItem, removeItem } from '../utils/storage';
 import axios from 'axios';
+import { router } from 'expo-router';
+import { useEffect, useState } from 'react';
+import { ActivityIndicator, Alert, FlatList, RefreshControl, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { API_URL } from '../constants/api';
+import { getItem, removeItem } from '../utils/storage';
 
 export default function DashboardScreen() {
   const [receipts, setReceipts] = useState([]);
@@ -24,7 +24,10 @@ export default function DashboardScreen() {
       const res = await axios.get(`${API_URL}/receipts`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      setReceipts(res.data || []);
+
+      console.log(res.data);
+
+      setReceipts(res.data.receipts || []);
     } catch (error) {
       console.error(error);
       Alert.alert('Error', 'Failed to fetch receipts');
@@ -68,7 +71,7 @@ export default function DashboardScreen() {
           ListEmptyComponent={<Text style={styles.emptyText}>No receipts found. Scan one to get started!</Text>}
         />
       )}
-      
+
       <View style={styles.footer}>
         <TouchableOpacity style={styles.scanButton} onPress={() => router.push('/scanner')}>
           <Text style={styles.scanButtonText}>Scan Receipt</Text>

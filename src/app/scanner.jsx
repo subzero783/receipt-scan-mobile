@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, ActivityIndicator, Alert, Platform } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
 import { getItem } from '../utils/storage';
@@ -58,15 +58,23 @@ export default function ScannerScreen() {
       }
 
       const formData = new FormData();
-      // Required format for React Native fetch/axios with FormData
-      const uriParts = image.uri.split('.');
-      const fileType = uriParts[uriParts.length - 1];
+      const mimeType = image.mimeType || 'image/jpeg';
+      const fileType = mimeType.split('/')[1] || 'jpeg';
       
-      formData.append('file', {
-        uri: image.uri,
-        name: `receipt.${fileType}`,
-        type: `image/${fileType}`,
-      });
+      let fileToUpload;
+      if (Platform.OS === 'web') {
+        const fileResponse = await fetch(image.uri);
+        const blob = await fileResponse.blob();
+        fileToUpload = new File([blob], `receipt.${fileType}`, { type: mimeType });
+      } else {
+        fileToUpload = {
+          uri: image.uri,
+          name: `receipt.${fileType}`,
+          type: mimeType,
+        };
+      }
+      
+      formData.append('file', fileToUpload);
 
       // Using fetch instead of axios for FormData in React Native can sometimes be more stable
       const response = await fetch(`${API_URL}/scan`, {
@@ -74,7 +82,6 @@ export default function ScannerScreen() {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Accept': 'application/json',
-          'Content-Type': 'multipart/form-data',
         },
         body: formData,
       });
