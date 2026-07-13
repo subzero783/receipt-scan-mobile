@@ -1,0 +1,10 @@
+.stepRow {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.codeSnippet {
+  border-radius: 8px;
+  padding: 2px 8px;
+}
