@@ -1,81 +1,55 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, Alert, ScrollView, Platform, KeyboardAvoidingView } from 'react-native';
 import { router } from 'expo-router';
-import { getItem, setItem } from '../utils/storage';
 import axios from 'axios';
 import { API_URL } from '../constants/api';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-export default function LoginScreen() {
+export default function SignUpScreen() {
+  const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  useEffect(() => {
-    checkToken();
-  }, []);
-
-  const checkToken = async () => {
-    try {
-      const token = await getItem('userToken');
-      if (token) {
-        router.replace('/dashboard');
-      } else {
-        setLoading(false);
-      }
-    } catch (_) {
-      setLoading(false);
+  const handleSignUp = async () => {
+    if (!fullName || !email || !password) {
+      Alert.alert('Error', 'Please fill in all fields');
+      return;
     }
-  };
-
-  const handleLogin = async () => {
-    if (!email || !password) {
-      Alert.alert('Error', 'Please enter email and password');
+    if (password.length < 8) {
+      Alert.alert('Error', 'Password must be at least 8 characters long');
       return;
     }
 
     setIsSubmitting(true);
     try {
-      const res = await axios.post(`${API_URL}/auth/mobile-login`, { email, password });
-      if (res.data.token) {
-        await setItem('userToken', res.data.token);
-        // Save user info for high fidelity display
-        const user = res.data.user || {};
-        await setItem('userName', user.name || 'Gus');
-        await setItem('userEmail', user.email || email);
-        await setItem('userIsPro', String(user.isPro || false));
-        router.replace('/dashboard');
+      const res = await axios.post(`${API_URL}/signup`, {
+        username: fullName,
+        email,
+        password,
+      });
+
+      if (res.data && res.data.success) {
+        Alert.alert('Success', 'Account created successfully! Please sign in.', [
+          { text: 'OK', onPress: () => router.replace('/') }
+        ]);
+      } else {
+        Alert.alert('Registration Failed', 'Could not create account');
       }
     } catch (error) {
       console.error(error.response?.data || error.message);
-      Alert.alert('Login Failed', error.response?.data?.message || 'Something went wrong');
+      // Backend may return error message as plain text or JSON
+      const errorMsg = typeof error.response?.data === 'string'
+        ? error.response?.data
+        : (error.response?.data?.message || 'Something went wrong');
+      Alert.alert('Registration Failed', errorMsg);
     } finally {
       setIsSubmitting(false);
     }
   };
-
-  const handleForgotPassword = () => {
-    Alert.alert(
-      'Forgot Password',
-      'Please reset your password on the web application at:\nhttps://receiptscan.io/forgot-password'
-    );
-  };
-
-  const handleSocialLogin = (platform) => {
-    Alert.alert('Social Authentication', `${platform} sign-in will be available in the production release.`);
-  };
-
-  if (loading) {
-    return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" color="#2563EB" />
-      </View>
-    );
-  }
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -98,8 +72,31 @@ export default function LoginScreen() {
 
           <View style={styles.formContainer}>
             {/* Header Text */}
-            <Text style={styles.title}>Welcome Back</Text>
-            <Text style={styles.subtitle}>Log in to manage your receipts.</Text>
+            <Text style={styles.title}>Create an Account</Text>
+            <Text style={styles.subtitle}>Start organizing your tax deductions for free.</Text>
+
+            {/* Free Forever Badge */}
+            <View style={styles.badgeContainer}>
+              <View style={styles.badge}>
+                <Ionicons name="shield-checkmark-outline" size={16} color="#10B981" style={styles.badgeIcon} />
+                <Text style={styles.badgeText}>Free forever · No credit card required</Text>
+              </View>
+            </View>
+
+            {/* Full Name Field */}
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Full Name</Text>
+              <View style={styles.inputWrapper}>
+                <Ionicons name="person-outline" size={20} color="#94A3B8" style={styles.inputIcon} />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Gus Fernandez"
+                  placeholderTextColor="#94A3B8"
+                  value={fullName}
+                  onChangeText={setFullName}
+                />
+              </View>
+            </View>
 
             {/* Email Field */}
             <View style={styles.inputGroup}>
@@ -120,12 +117,12 @@ export default function LoginScreen() {
 
             {/* Password Field */}
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>Password</Text>
+              <Text style={styles.label}>Create Password</Text>
               <View style={styles.inputWrapper}>
                 <Ionicons name="lock-closed-outline" size={20} color="#94A3B8" style={styles.inputIcon} />
                 <TextInput
                   style={styles.input}
-                  placeholder="Enter your password"
+                  placeholder="Min. 8 characters"
                   placeholderTextColor="#94A3B8"
                   value={password}
                   onChangeText={setPassword}
@@ -141,59 +138,41 @@ export default function LoginScreen() {
               </View>
             </View>
 
-            {/* Forgot Password */}
-            <TouchableOpacity onPress={handleForgotPassword} style={styles.forgotPasswordContainer}>
-              <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
-            </TouchableOpacity>
+            {/* Terms and Privacy Text */}
+            <Text style={styles.termsText}>
+              By creating an account you agree to our{' '}
+              <Text style={styles.termsLink} onPress={() => Alert.alert('Terms of Service', 'Terms of Service will open in a browser.')}>
+                Terms of Service
+              </Text>{' '}
+              and{' '}
+              <Text style={styles.termsLink} onPress={() => Alert.alert('Privacy Policy', 'Privacy Policy will open in a browser.')}>
+                Privacy Policy
+              </Text>
+              .
+            </Text>
 
-            {/* Sign In Button */}
+            {/* Create Account Button */}
             <TouchableOpacity
               activeOpacity={0.9}
               style={styles.button}
-              onPress={handleLogin}
+              onPress={handleSignUp}
               disabled={isSubmitting}
             >
               {isSubmitting ? (
                 <ActivityIndicator color="#fff" />
               ) : (
                 <View style={styles.buttonContent}>
-                  <Text style={styles.buttonText}>Sign In</Text>
+                  <Text style={styles.buttonText}>Create Account</Text>
                   <Ionicons name="arrow-forward" size={18} color="#FFFFFF" style={styles.buttonArrow} />
                 </View>
               )}
             </TouchableOpacity>
 
-            {/* Divider */}
-            <View style={styles.dividerContainer}>
-              <View style={styles.dividerLine} />
-              <Text style={styles.dividerText}>or continue with</Text>
-              <View style={styles.dividerLine} />
-            </View>
-
-            {/* Social Buttons */}
-            <View style={styles.socialRow}>
-              <TouchableOpacity
-                onPress={() => handleSocialLogin('Google')}
-                style={styles.socialButton}
-              >
-                <Ionicons name="logo-google" size={20} color="#EA4335" style={styles.socialIcon} />
-                <Text style={styles.socialText}>Google</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                onPress={() => handleSocialLogin('Apple')}
-                style={styles.socialButton}
-              >
-                <Ionicons name="logo-apple" size={20} color="#000000" style={styles.socialIcon} />
-                <Text style={styles.socialText}>Apple</Text>
-              </TouchableOpacity>
-            </View>
-
             {/* Bottom Link */}
-            <View style={styles.signupContainer}>
-              <Text style={styles.signupText}>Don't have an account? </Text>
-              <TouchableOpacity onPress={() => router.push('/signup')}>
-                <Text style={styles.signupLink}>Sign Up</Text>
+            <View style={styles.loginContainer}>
+              <Text style={styles.loginText}>Already have an account? </Text>
+              <TouchableOpacity onPress={() => router.replace('/')}>
+                <Text style={styles.loginLink}>Sign In</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -206,12 +185,6 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#F8FAFC',
-  },
-  center: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
     backgroundColor: '#F8FAFC',
   },
   scrollContent: {
@@ -260,7 +233,29 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: '#64748B',
     textAlign: 'center',
-    marginBottom: 32,
+    marginBottom: 16,
+  },
+  badgeContainer: {
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  badge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#ECFDF5',
+    borderWidth: 1,
+    borderColor: '#A7F3D0',
+    borderRadius: 20,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+  },
+  badgeIcon: {
+    marginRight: 6,
+  },
+  badgeText: {
+    fontSize: 12,
+    color: '#047857',
+    fontWeight: '600',
   },
   inputGroup: {
     marginBottom: 20,
@@ -298,12 +293,14 @@ const styles = StyleSheet.create({
   eyeIcon: {
     padding: 4,
   },
-  forgotPasswordContainer: {
-    alignSelf: 'flex-end',
+  termsText: {
+    fontSize: 13,
+    color: '#64748B',
+    lineHeight: 18,
+    textAlign: 'center',
     marginBottom: 28,
   },
-  forgotPasswordText: {
-    fontSize: 14,
+  termsLink: {
     fontWeight: '600',
     color: '#2563EB',
   },
@@ -333,56 +330,17 @@ const styles = StyleSheet.create({
   buttonArrow: {
     marginLeft: 8,
   },
-  dividerContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 24,
-  },
-  dividerLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: '#E2E8F0',
-  },
-  dividerText: {
-    fontSize: 13,
-    color: '#94A3B8',
-    paddingHorizontal: 12,
-  },
-  socialRow: {
-    flexDirection: 'row',
-    gap: 16,
-    marginBottom: 32,
-  },
-  socialButton: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    borderRadius: 12,
-    height: 50,
-  },
-  socialIcon: {
-    marginRight: 8,
-  },
-  socialText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#334155',
-  },
-  signupContainer: {
+  loginContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 8,
   },
-  signupText: {
+  loginText: {
     fontSize: 14,
     color: '#64748B',
   },
-  signupLink: {
+  loginLink: {
     fontSize: 14,
     fontWeight: '700',
     color: '#2563EB',
