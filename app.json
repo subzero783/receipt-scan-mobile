@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "receipt-scan-mobile",
-    "slug": "receipt-scan-mobile",
+    "slug": "receipt-scan",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -9,7 +9,10 @@
     "userInterfaceStyle": "automatic",
     "ios": {
       "icon": "./assets/expo.icon",
-      "bundleIdentifier": "com.gamezcua.receipt-scan-mobile"
+      "bundleIdentifier": "com.gamezcua.receipt-scan-mobile",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -18,7 +21,8 @@
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "receiptscan.developergus.com"
     },
     "web": {
       "output": "static",
@@ -39,6 +43,13 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "ae9af373-7c69-43b7-bcf7-806a3e201427"
+      }
+    },
+    "owner": "gamezcua"
   }
 }
