@@ -1,12 +1,13 @@
 import { SymbolView } from 'expo-symbols';
 import { useState } from 'react';
-import { Pressable, StyleSheet, Platform } from 'react-native';
+import { Pressable, Platform } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { useTheme } from '@/hooks/use-theme';
 import classes from './collapsible.module.css';
+import { styles } from './collapsible.styles';
 
 export function Collapsible({ children, title }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -42,37 +43,12 @@ export function Collapsible({ children, title }) {
     );
   }
 
-  // Native fallback
-  const nativeStyles = {
-    heading: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: 8,
-    },
-    pressedHeading: {
-      opacity: 0.7,
-    },
-    button: {
-      width: 24,
-      height: 24,
-      borderRadius: 12,
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    content: {
-      marginTop: 16,
-      borderRadius: 16,
-      marginLeft: 24,
-      padding: 24,
-    },
-  };
-
   return (
     <ThemedView>
       <Pressable
-        style={({ pressed }) => [nativeStyles.heading, pressed && nativeStyles.pressedHeading]}
+        style={({ pressed }) => [styles.heading, pressed && styles.pressedHeading]}
         onPress={() => setIsOpen((value) => !value)}>
-        <ThemedView type="backgroundElement" style={nativeStyles.button}>
+        <ThemedView type="backgroundElement" style={styles.button}>
           <SymbolView
             name={{ ios: 'chevron.right', android: 'chevron_right', web: 'chevron_right' }}
             size={14}
@@ -86,7 +62,7 @@ export function Collapsible({ children, title }) {
       </Pressable>
       {isOpen && (
         <Animated.View entering={FadeIn.duration(200)}>
-          <ThemedView type="backgroundElement" style={nativeStyles.content}>
+          <ThemedView type="backgroundElement" style={styles.content}>
             {children}
           </ThemedView>
         </Animated.View>

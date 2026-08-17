@@ -1,10 +1,10 @@
 import { version } from 'expo/package.json';
 import { Image } from 'expo-image';
 import { useColorScheme, Platform } from 'react-native';
-
-import { ThemedText } from './themed-text';
-import { ThemedView } from './themed-view';
+import { ThemedText } from '@/components/themed-text';
+import { ThemedView } from '@/components/themed-view';
 import classes from './web-badge.module.css';
+import { styles } from './web-badge.styles';
 
 export function WebBadge() {
   const scheme = useColorScheme();
@@ -28,30 +28,14 @@ export function WebBadge() {
     );
   }
 
-  // Native fallback styling
-  const nativeStyles = {
-    container: {
-      padding: 32,
-      alignItems: 'center',
-      gap: 8,
-    },
-    versionText: {
-      textAlign: 'center',
-    },
-    badgeImage: {
-      width: 123,
-      aspectRatio: 123 / 24,
-    },
-  };
-
   return (
-    <ThemedView style={nativeStyles.container}>
-      <ThemedText type="code" themeColor="textSecondary" style={nativeStyles.versionText}>
+    <ThemedView style={styles.container}>
+      <ThemedText type="code" themeColor="textSecondary" style={styles.versionText}>
         v{version}
       </ThemedText>
       <Image
         source={badgeSource}
-        style={nativeStyles.badgeImage}
+        style={styles.badgeImage}
       />
     </ThemedView>
   );

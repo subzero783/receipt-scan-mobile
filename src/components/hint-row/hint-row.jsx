@@ -1,7 +1,8 @@
 import { Platform, View } from 'react-native';
-import { ThemedText } from './themed-text';
-import { ThemedView } from './themed-view';
+import { ThemedText } from '@/components/themed-text';
+import { ThemedView } from '@/components/themed-view';
 import classes from './hint-row.module.css';
+import { styles } from './hint-row.styles';
 
 export function HintRow({ title = 'Try editing', hint = 'app/index.tsx' }) {
   if (Platform.OS === 'web') {
@@ -15,23 +16,10 @@ export function HintRow({ title = 'Try editing', hint = 'app/index.tsx' }) {
     );
   }
 
-  // Native fallback using inline style objects
-  const nativeStyles = {
-    stepRow: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-    },
-    codeSnippet: {
-      borderRadius: 8,
-      paddingVertical: 2,
-      paddingHorizontal: 8,
-    },
-  };
-
   return (
-    <View style={nativeStyles.stepRow}>
+    <View style={styles.stepRow}>
       <ThemedText type="small">{title}</ThemedText>
-      <ThemedView type="backgroundSelected" style={nativeStyles.codeSnippet}>
+      <ThemedView type="backgroundSelected" style={styles.codeSnippet}>
         <ThemedText themeColor="textSecondary">{hint}</ThemedText>
       </ThemedView>
     </View>

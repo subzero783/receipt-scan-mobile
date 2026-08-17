@@ -1,56 +1,89 @@
-# Welcome to your Expo app 👋
+# Receipt Scan Mobile App 👋
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Receipt Scan Mobile is a universal cross-platform mobile application built with **React Native** and **Expo** (v57.0.0). It allows users to capture or upload receipts, extract key financial information using an AI backend, and manage expenses for tax deductions and general bookkeeping.
 
-## Get started
+---
 
-1. Install dependencies
+## Key Features
 
-   ```bash
-   npm install
-   ```
+- **Secure Authentication**: Traditional sign-in and sign-up with email and password, as well as placeholders for OAuth (Google, Apple).
+- **Interactive Dashboard**: View monthly spending graphs, stats (scanned count, category breakdown), and browse a detailed log of scanned receipts.
+- **Smart Camera Scanner**: Align receipts inside a viewfinder with real-time horizontal scan animation, adjust camera flash, or select images from the system gallery.
+- **AI Extraction & Detail Editing**: Modify auto-extracted receipt data including Merchant Name, Transaction Date, Total Amount, and Tax Categories.
+- **Export Options**: Export invoice summaries as PDF files or raw data as CSV tables.
+- **Universal Build**: Fully optimized and runs natively on iOS, Android, and Web browsers.
 
-2. Start the app
+---
 
-   ```bash
-   npx expo start
-   ```
+## Directory Architecture
 
-In the output, you'll find options to open the app in a
+The project adheres to a clean architecture dividing routing paths, screen representations, and reusable UI components.
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
+```text
+├── assets/                  # Shared assets (images, typography, icons)
+├── src/
+│   ├── app/                 # Expo Router route mapping (URLs)
+│   │   ├── _layout.jsx      # Navigation stack layout
+│   │   ├── index.jsx        # Login route wrapper
+│   │   ├── signup.jsx       # Signup route wrapper
+│   │   ├── dashboard.jsx    # Dashboard route wrapper
+│   │   ├── settings.jsx     # Settings route wrapper
+│   │   └── receipt/
+│   │       └── [id].jsx     # Dynamic receipt details wrapper
+│   │
+│   ├── screens/             # Dedicated screen implementations (UI logic & styles)
+│   │   ├── login/           # Login screen & styles
+│   │   ├── signup/          # Signup screen & styles
+│   │   ├── dashboard/       # Dashboard screen & styles
+│   │   ├── settings/        # Settings screen & styles
+│   │   └── receipt/         # Receipt detail screen & styles
+│   │
+│   ├── components/          # Reusable shared UI components
+│   │   ├── BottomTabBar/    # Main navigation tab bar
+│   │   ├── animated-icon/   # App branding icons (native & web versions)
+│   │   ├── themed-text/     # Dynamic typography matching active color scheme
+│   │   ├── themed-view/     # Theme-aware container views
+│   │   └── ui/              # UI widgets (e.g. collapsible sections)
+│   │
+│   ├── constants/           # Global design tokens (theme Colors, fonts) and API endpoints
+│   ├── hooks/               # Custom React hooks (useTheme)
+│   └── utils/               # Helper utilities (encrypted storage wrappers)
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+---
 
-### Other setup steps
+## Getting Started
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+### 1. Prerequisites
+Ensure you have Node.js and your preferred package manager (npm, yarn, or pnpm) installed. A local API backend must also be running.
 
-## Learn more
+### 2. Installation
+Install project dependencies:
+```bash
+npm install
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+### 3. Start the Development Server
+Launch Metro bundler to run on an emulator, simulator, physical device (via Expo Go), or web browser:
+```bash
+npm run start
+```
+*Press `i` for iOS Simulator, `a` for Android Emulator, or `w` for Web.*
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+---
 
-## Join the community
+## Code Quality and Verification
 
-Join our community of developers creating universal apps.
+We maintain a strict typing and styling convention across the codebase.
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+### Running the Linter
+To identify style violations or syntax anomalies:
+```bash
+npm run lint
+```
+
+### Type Verification
+To check type safety and import compliance:
+```bash
+npx tsc --noEmit
+```

@@ -1,0 +1,183 @@
+import React, { useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, Alert, ScrollView, Platform, KeyboardAvoidingView } from 'react-native';
+import { router } from 'expo-router';
+import axios from 'axios';
+import { API_URL } from '@/constants/api';
+import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { styles } from './SignupScreen.styles';
+
+export default function SignUpScreen() {
+  const [fullName, setFullName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSignUp = async () => {
+    if (!fullName || !email || !password) {
+      Alert.alert('Error', 'Please fill in all fields');
+      return;
+    }
+    if (password.length < 8) {
+      Alert.alert('Error', 'Password must be at least 8 characters long');
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const res = await axios.post(`${API_URL}/signup`, {
+        username: fullName,
+        email,
+        password,
+      });
+
+      if (res.data && res.data.success) {
+        Alert.alert('Success', 'Account created successfully! Please sign in.', [
+          { text: 'OK', onPress: () => router.replace('/') }
+        ]);
+      } else {
+        Alert.alert('Registration Failed', 'Could not create account');
+      }
+    } catch (error) {
+      console.error(error.response?.data || error.message);
+      const errorMsg = typeof error.response?.data === 'string'
+        ? error.response?.data
+        : (error.response?.data?.message || 'Something went wrong');
+      Alert.alert('Registration Failed', errorMsg);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <SafeAreaView style={styles.safeArea}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={{ flex: 1 }}
+      >
+        <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+          {/* Top Gradient Section */}
+          <LinearGradient
+            colors={['#DBEAFE', '#F8FAFC']}
+            style={styles.headerGradient}
+          >
+            <View style={styles.logoContainer}>
+              <View style={styles.logoBox}>
+                <Ionicons name="document-text" size={32} color="#FFFFFF" />
+              </View>
+            </View>
+          </LinearGradient>
+
+          <View style={styles.formContainer}>
+            {/* Header Text */}
+            <Text style={styles.title}>Create an Account</Text>
+            <Text style={styles.subtitle}>Start organizing your tax deductions for free.</Text>
+
+            {/* Free Forever Badge */}
+            <View style={styles.badgeContainer}>
+              <View style={styles.badge}>
+                <Ionicons name="shield-checkmark-outline" size={16} color="#10B981" style={styles.badgeIcon} />
+                <Text style={styles.badgeText}>Free forever · No credit card required</Text>
+              </View>
+            </View>
+
+            {/* Full Name Field */}
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Full Name</Text>
+              <View style={styles.inputWrapper}>
+                <Ionicons name="person-outline" size={20} color="#94A3B8" style={styles.inputIcon} />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Gus Fernandez"
+                  placeholderTextColor="#94A3B8"
+                  value={fullName}
+                  onChangeText={setFullName}
+                />
+              </View>
+            </View>
+
+            {/* Email Field */}
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Email Address</Text>
+              <View style={styles.inputWrapper}>
+                <Ionicons name="mail-outline" size={20} color="#94A3B8" style={styles.inputIcon} />
+                <TextInput
+                  style={styles.input}
+                  placeholder="you@email.com"
+                  placeholderTextColor="#94A3B8"
+                  value={email}
+                  onChangeText={setEmail}
+                  autoCapitalize="none"
+                  keyboardType="email-address"
+                />
+              </View>
+            </View>
+
+            {/* Password Field */}
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Create Password</Text>
+              <View style={styles.inputWrapper}>
+                <Ionicons name="lock-closed-outline" size={20} color="#94A3B8" style={styles.inputIcon} />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Min. 8 characters"
+                  placeholderTextColor="#94A3B8"
+                  value={password}
+                  onChangeText={setPassword}
+                  secureTextEntry={!showPassword}
+                />
+                <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.eyeIcon}>
+                  <Ionicons
+                    name={showPassword ? 'eye-off-outline' : 'eye-outline'}
+                    size={20}
+                    color="#94A3B8"
+                  />
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            {/* Terms and Privacy Text */}
+            <Text style={styles.termsText}>
+              By creating an account you agree to our{' '}
+              <Text style={styles.termsLink} onPress={() => Alert.alert('Terms of Service', 'Terms of Service will open in a browser.')}>
+                Terms of Service
+              </Text>{' '}
+              and{' '}
+              <Text style={styles.termsLink} onPress={() => Alert.alert('Privacy Policy', 'Privacy Policy will open in a browser.')}>
+                Privacy Policy
+              </Text>
+              .
+            </Text>
+
+            {/* Create Account Button */}
+            <TouchableOpacity
+              activeOpacity={0.9}
+              style={styles.button}
+              onPress={handleSignUp}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <View style={styles.buttonContent}>
+                  <Text style={styles.buttonText}>Create Account</Text>
+                  <Ionicons name="arrow-forward" size={18} color="#FFFFFF" style={styles.buttonArrow} />
+                </View>
+              )}
+            </TouchableOpacity>
+
+            {/* Bottom Link */}
+            <View style={styles.loginContainer}>
+              <Text style={styles.loginText}>Already have an account? </Text>
+              <TouchableOpacity onPress={() => router.replace('/')}>
+                <Text style={styles.loginLink}>Sign In</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
+  );
+}
